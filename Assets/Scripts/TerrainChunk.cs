@@ -53,7 +53,7 @@ public class TerrainChunk {
 
 		lodMeshes = new LODMesh[detailLevels.Length];
 		for (int i = 0; i < detailLevels.Length; i++) {
-			lodMeshes[i] = new LODMesh(detailLevels[i].lod);
+            lodMeshes[i] = new LODMesh(detailLevels[i].lod,heightMapSettings);
 			lodMeshes[i].updateCallback += UpdateTerrainChunk;
 			if (i == colliderLODIndex) {
 				lodMeshes[i].updateCallback += UpdateCollisionMesh;
@@ -155,15 +155,16 @@ public class TerrainChunk {
 }
 
 class LODMesh {
-
+    HeightMapSettings heightMapSettings;
 	public Mesh mesh;
 	public bool hasRequestedMesh;
 	public bool hasMesh;
 	int lod;
 	public event System.Action updateCallback;
 
-	public LODMesh(int lod) {
+    public LODMesh(int lod,HeightMapSettings heightMapSettings) {
 		this.lod = lod;
+        this.heightMapSettings = heightMapSettings;
 	}
 
 	void OnMeshDataReceived(object meshDataObject) {
@@ -175,7 +176,7 @@ class LODMesh {
 
 	public void RequestMesh(HeightMap heightMap, MeshSettings meshSettings) {
 		hasRequestedMesh = true;
-		ThreadedDataRequester.RequestData (() => MeshGenerator.GenerateTerrainMesh (heightMap.values, meshSettings, lod), OnMeshDataReceived);
+        ThreadedDataRequester.RequestData (() => MeshGenerator.GenerateTerrainMesh (heightMap.values, meshSettings, lod,heightMapSettings), OnMeshDataReceived);
 	}
 
 }

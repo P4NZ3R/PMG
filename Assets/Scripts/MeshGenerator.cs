@@ -4,7 +4,7 @@ using System.Collections;
 public static class MeshGenerator {
 
 
-	public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, int levelOfDetail) {
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, int levelOfDetail,HeightMapSettings heightMapSettings) {
 
 		int skipIncrement = (levelOfDetail == 0)?1:levelOfDetail * 2;
 		int numVertsPerLine = meshSettings.numVertsPerLine;
@@ -44,7 +44,9 @@ public static class MeshGenerator {
 					int vertexIndex = vertexIndicesMap [x, y];
 					Vector2 percent = new Vector2 (x - 1, y - 1) / (numVertsPerLine - 3);
 					Vector2 vertexPosition2D = topLeft + new Vector2(percent.x,-percent.y) * meshSettings.meshWorldSize;
-					float height = heightMap [x, y];
+                    float height = heightMap [x, y];
+                    if(heightMapSettings.useFalloff)
+                        height*=heightMapSettings.falloffCurve.Evaluate(vertexPosition2D.sqrMagnitude/(heightMapSettings.falloffDist==0 ? 1 : heightMapSettings.falloffDist));
 
 					if (isEdgeConnectionVertex) {
 						bool isVertical = x == 2 || x == numVertsPerLine - 3;
